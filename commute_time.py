@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import datetime, timedelta
 import itertools
+import sys
 
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
@@ -70,6 +71,13 @@ def get_data():
         yield row1.date, duration, row2.location
 
 if __name__ == '__main__':
-    print(SEP.join(get_headers()))
+    sep = SEP
+    try:
+        if sys.argv[1] == '-s':
+            sep = sys.argv[2]
+    except IndexError:
+        pass
+
+    print(sep.join(get_headers()))
     for data in get_data():
-        print(SEP.join(str(i) for i in data))
+        print(sep.join(str(i) for i in data))
