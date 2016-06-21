@@ -68,7 +68,7 @@ def get_data():
         if duration > MAX_COMMUTE_TIME or duration < MIN_COMMUTE_TIME:
             continue
         
-        yield row1.date, duration, row2.location
+        yield row1.date, duration.seconds, row2.location
 
 if __name__ == '__main__':
     sep = SEP
