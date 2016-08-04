@@ -3,7 +3,6 @@ from append_to_spreadsheet import append_to_spreadsheet
 from datetime import datetime
 import car_costs
 import collections
-import json
 import mileage
 import requests
 import secrets

@@ -1,16 +1,9 @@
 from collections import namedtuple
+from common import gc
 from datetime import datetime, timedelta
 import itertools
 import sys
 
-from oauth2client.service_account import ServiceAccountCredentials
-import gspread
-
-scope = ['https://spreadsheets.google.com/feeds']
-filename = 'personal-etl-dba50f184134.json'
-credentials = ServiceAccountCredentials.from_json_keyfile_name(filename, scope)
-
-gc = gspread.authorize(credentials)
 key = '1xjRLMoirdEOUr9bHHGzDU2qgdAJXl0sby5LMd9sGF8Q'
 locations = gc.open_by_key(key).sheet1
 

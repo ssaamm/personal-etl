@@ -1,19 +1,9 @@
 from collections import namedtuple
-from datetime import datetime, timedelta
-from itertools import islice
+from common import gc
 from mileage import parse_timestamp
-import sys
 
-from oauth2client.service_account import ServiceAccountCredentials
-import gspread
-
-scope = ['https://spreadsheets.google.com/feeds']
-filename = 'personal-etl-dba50f184134.json'
-credentials = ServiceAccountCredentials.from_json_keyfile_name(filename, scope)
-
-gc = gspread.authorize(credentials)
 key = '1zZfwcBQkpjbGqk3jT67IdnCuVSbr-YTiMQQNRCw0m30'
-sheet = gc.open_by_key(key).worksheets()[0]
+sheet = gc.open_by_key(key).get_worksheet(0)
 
 Cost = namedtuple('Cost', ['name', 'timestamp', 'category', 'cost', 'reimbursable'])
 
