@@ -22,16 +22,17 @@ def get_raw_objects():
     for r in raw_rows:
         yield dict(zip(headers, r))
 
-def averaged_missing(costs):
+def averaged_missing(costs, nearest_n=None):
     costs = list(costs)
 
     for ndx, cost in enumerate(costs):
         if cost.cost:
             continue
 
-        same_category = [c.cost for c in costs
-                         if c.category == cost.category and c.cost]
-        new_cost = float(sum(same_category)) / len(same_category)
+        same_category = sorted((c for c in costs if c.category == cost.category and c.cost),
+                               key=lambda c: abs((c.timestamp - cost.timestamp).seconds))
+        costs_to_avg = [c.cost for c in same_category][:nearest_n]
+        new_cost = float(sum(costs_to_avg)) / len(costs_to_avg)
 
         costs[ndx] = Cost(cost.name, cost.timestamp, cost.category, new_cost,
                           cost.reimbursable)
@@ -54,7 +55,7 @@ def get_intermediate_data():
         yield Cost(**elem)
 
 def get_data():
-    for i in averaged_missing(get_intermediate_data()):
+    for i in averaged_missing(get_intermediate_data(), nearest_n=2):
         yield i
 
 if __name__ == '__main__':
