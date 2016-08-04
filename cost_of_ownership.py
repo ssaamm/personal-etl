@@ -1,4 +1,6 @@
 from __future__ import print_function
+from append_to_spreadsheet import append_to_spreadsheet
+from datetime import datetime
 import car_costs
 import collections
 import json
@@ -13,7 +15,13 @@ EDMUNDS_TMV_URL = 'https://api.edmunds.com/v1/api/tmv/tmvservice/calculateusedtm
 EDMUNDS_VEHICLE_URL = 'https://api.edmunds.com/api/vehicle/v2/{make}/{model}/{year}/styles?fmt=json&api_key={api_key}'
 EDMUNDS_COLORS_URL = 'https://api.edmunds.com/api/vehicle/v2/styles/{style_id}/colors'
 
-def get_current_car_value(mileage, condition='Clean'):
+key = '1zZfwcBQkpjbGqk3jT67IdnCuVSbr-YTiMQQNRCw0m30'
+def get_current_car_value(*args, **kwargs):
+    value = _get_current_car_value(*args, **kwargs)
+    append_to_spreadsheet(key, [datetime.now(), value], sheet_ndx=3)
+    return value
+
+def _get_current_car_value(mileage, condition='Clean'):
     '''
     Edmunds docs: http://developer.edmunds.com/api-documentation/vehicle/price_tmv/v1/04_calculateusedtmv/api-description
     '''
