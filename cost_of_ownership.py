@@ -93,8 +93,8 @@ if __name__ == '__main__':
 
     print(sep.join(get_headers()))
     total_all, total_noreimburse = 0.0, 0.0
-    for data in get_data(per_mile=True):
+    for data in get_data(per_mile=False):
         print(sep.join(str(i) for i in data))
         total_all += data[1]
         total_noreimburse += data[2]
-    print('Total,{0},{1}'.format(total_all, total_noreimburse))
+    print('Total{s}{0}{s}{1}'.format(total_all, total_noreimburse, s=sep))
