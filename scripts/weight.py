@@ -1,4 +1,4 @@
-from common import gc
+from utils.common import gc
 from datetime import datetime
 from itertools import islice, count, groupby
 import sys

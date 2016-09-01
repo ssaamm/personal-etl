@@ -1,6 +1,6 @@
 import pytest
 
-from math_utils import rolling_average
+from utils.math_utils import rolling_average
 
 
 def test_window_1_is_identity():
@@ -24,4 +24,4 @@ def test_rolling_avg_too_small_list():
     lst = [0, 1, 2, 3]
 
     with pytest.raises(ValueError):
-        rolling_average(lst, len(lst) + 1)
+        list(rolling_average(lst, len(lst) + 1))

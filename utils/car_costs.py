@@ -1,6 +1,7 @@
 from collections import namedtuple
-from common import gc
-from mileage import parse_timestamp
+
+from scripts.mileage import parse_timestamp
+from utils.common import gc
 
 key = '1zZfwcBQkpjbGqk3jT67IdnCuVSbr-YTiMQQNRCw0m30'
 sheet = gc.open_by_key(key).get_worksheet(0)

@@ -1,5 +1,6 @@
 import pytest
-from duration import Duration
+
+from utils.duration import Duration
 
 
 @pytest.mark.parametrize('a,b,expected', [

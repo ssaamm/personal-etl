@@ -1,8 +1,9 @@
-from collections import namedtuple
-from common import gc
-from datetime import datetime, timedelta
 import itertools
 import sys
+from collections import namedtuple
+from datetime import datetime, timedelta
+
+from utils.common import gc
 
 key = '1xjRLMoirdEOUr9bHHGzDU2qgdAJXl0sby5LMd9sGF8Q'
 locations = gc.open_by_key(key).sheet1

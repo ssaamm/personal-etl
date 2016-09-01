@@ -1,12 +1,14 @@
 from __future__ import print_function
-from append_to_spreadsheet import append_to_spreadsheet
-from datetime import datetime
-import car_costs
+
 import collections
-import mileage
-import requests
-import secrets
 import sys
+from datetime import datetime
+
+import requests
+
+import mileage
+from utils import car_costs, secrets
+from utils.append_to_spreadsheet import append_to_spreadsheet
 
 SEP = '\t'
 

@@ -1,11 +1,12 @@
-from common import gc
-from duration import Duration
-import datetime
-from itertools import islice, count, groupby
 import collections
+import datetime
 import sys
+from itertools import islice, groupby
 
-from math_utils import rolling_average
+from utils.common import gc
+from utils.duration import Duration
+
+from utils.math_utils import rolling_average
 
 key = '1RzVbHFsIw6K9koiI9oGdWkhQmZrwUikfLIoNhvdlEs8'
 sheet = gc.open_by_key(key).get_worksheet(0)
