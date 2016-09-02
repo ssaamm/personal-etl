@@ -55,7 +55,7 @@ def get_daily_did_i_workout():
 def get_workout_rolling_avg(days=7):
     did_workouts = get_daily_did_i_workout()
     numbers = [int(b) for d, b in did_workouts]
-    for date_did_workout, avg in zip(did_workouts, rolling_average(numbers, window=days)):
+    for date_did_workout, avg in zip(did_workouts[days - 1:], rolling_average(numbers, window=days)):
         yield date_did_workout[0], avg
 
 
