@@ -47,7 +47,7 @@ def get_daily_did_i_workout():
                 for date, num_exercises, duration, distance, reps in get_daily_summary()}
 
     chrono_dates = list(sorted(workouts.keys()))
-    first_day, last_day = min(chrono_dates), max(chrono_dates)
+    first_day, last_day = min(chrono_dates), datetime.date.today()
 
     days = (first_day + datetime.timedelta(days=i) for i in range(1, (last_day - first_day).days + 1))
     return [(d, d in workouts and any(workouts[d])) for d in days]
