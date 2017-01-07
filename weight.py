@@ -24,6 +24,7 @@ def get_data():
     df = df.groupby(pd.TimeGrouper('1D')).agg([np.min, np.max]).interpolate().rolling(window=7).mean()
 
     df.dropna(inplace=True)
+    df.index.name = 'date'
     df.columns = ['max_weight', 'min_weight']
     return df
 
