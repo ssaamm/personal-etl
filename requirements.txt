@@ -1,5 +1,4 @@
 gspread
 oauth2client
 pyOpenSSL
-worklogmd
 pandas==0.19.2
