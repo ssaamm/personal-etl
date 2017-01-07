@@ -75,7 +75,7 @@ def get_data(per_mile=False):
     costs['Depreciation']['all'] = costs['Purchase']['all'] - current_value
     costs['Depreciation']['noreimburse'] = costs['Purchase']['noreimburse'] - current_value
 
-    my_mileage = current_mileage - int(mileage_history[0][0])
+    my_mileage = current_mileage - int(mileage_history[0][1])
     for k, v in costs.iteritems():
         if k == 'Purchase':
             continue
