@@ -28,7 +28,7 @@ def get_rows():
 def parse_timestamp(date, time):
     return datetime.strptime('{0} {1}'.format(date, time), '%m/%d/%Y %H:%M')
 
-def get_data():
+def get_weekly_miles():
     rows = list(get_rows())
     df = pd.DataFrame(data=[t[1] for t in rows], index=[t[0] for t in rows], columns=['mileage'])
     df = df.groupby(pd.TimeGrouper('1W')).max().interpolate()
@@ -47,5 +47,5 @@ if __name__ == '__main__':
         pass
 
     print(sep.join(('week_ending', 'miles_driven')))
-    for week, miles_driven in get_data():
+    for week, miles_driven in get_weekly_miles():
         print('{}{}{}'.format(week, sep, miles_driven))

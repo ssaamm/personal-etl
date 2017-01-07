@@ -61,7 +61,7 @@ def get_headers():
     return ['category', 'cost_all', 'cost_noreimburse']
 
 def get_data(per_mile=False):
-    mileage_history = list(sorted(mileage.get_data(), key=lambda t: t[1]))
+    mileage_history = list(sorted(mileage.get_rows(), key=lambda t: t[0]))
 
     costs = collections.defaultdict(lambda: collections.defaultdict(float))
     cost_data = car_costs.get_data()
@@ -70,7 +70,7 @@ def get_data(per_mile=False):
         if not c.reimbursable:
             costs[c.category]['noreimburse'] += c.cost
 
-    current_mileage = int(mileage_history[-1][0])
+    current_mileage = int(mileage_history[-1][1])
     current_value = get_current_car_value(current_mileage)
     costs['Depreciation']['all'] = costs['Purchase']['all'] - current_value
     costs['Depreciation']['noreimburse'] = costs['Purchase']['noreimburse'] - current_value
