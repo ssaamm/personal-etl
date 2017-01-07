@@ -22,7 +22,7 @@ def get_rows():
 
     for mileage, date, time in islice(zip(*all_cols), 1, None):
         if (mileage, date, time) == EMPTY_ROW:
-            return
+            raise StopIteration
         yield parse_timestamp(date, time), int(mileage)
 
 def parse_timestamp(date, time):
