@@ -2,6 +2,8 @@ from utils.common import gc
 from datetime import datetime
 from itertools import islice, count, groupby
 import sys
+import pandas as pd
+import numpy as np
 
 key = '1RzVbHFsIw6K9koiI9oGdWkhQmZrwUikfLIoNhvdlEs8'
 sheet = gc.open_by_key(key).get_worksheet(1)
@@ -16,20 +18,17 @@ def get_raw_rows():
             raise StopIteration
         yield parse_timestamp(row[0], row[1]), float(row[2])
 
-def get_rows_by_date():
-    for date, weigh_ins in groupby(get_raw_rows(), key=lambda t: t[0].date()):
-        weights = [w for ts, w in weigh_ins]
-        yield date, min(weights), max(weights), len(weights)
+def get_data():
+    rows = list(get_raw_rows())
+    df = pd.DataFrame(data=[t[1] for t in rows], index=[t[0] for t in rows], columns=['weight'])
+    df = df.groupby(pd.TimeGrouper('1D')).agg([np.min, np.max]).interpolate().rolling(window=7).mean()
 
-def get_headers():
-    return 'date', 'min_weight', 'max_weight', 'num_weights'
+    df.dropna(inplace=True)
+    df.columns = ['max_weight', 'min_weight']
+    return df
 
 def parse_timestamp(date, time):
     return datetime.strptime('{0} {1}'.format(date, time), '%m/%d/%Y %H:%M')
-
-def get_data():
-    for t in get_rows_by_date():
-        yield t
 
 if __name__ == '__main__':
     sep = SEP
@@ -39,6 +38,5 @@ if __name__ == '__main__':
     except IndexError:
         pass
 
-    print(sep.join(get_headers()))
-    for data in get_data():
-        print(sep.join(str(i) for i in data))
+    df = get_data()
+    df.to_csv(sys.stdout, sep=sep)
