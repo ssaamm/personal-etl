@@ -21,7 +21,7 @@ def get_raw_rows():
 def get_data():
     rows = list(get_raw_rows())
     df = pd.DataFrame(data=[t[1] for t in rows], index=[t[0] for t in rows], columns=['weight'])
-    df = df.groupby(pd.TimeGrouper('1D')).agg([np.min, np.max]).interpolate().rolling(window=7).mean()
+    df = df.groupby(pd.TimeGrouper('1D')).agg([np.max, np.min]).interpolate().rolling(window=7).mean()
 
     df.dropna(inplace=True)
     df.index.name = 'date'
