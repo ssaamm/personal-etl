@@ -1,10 +1,10 @@
 from itertools import count
 from common import gc
 
-def append_to_spreadsheet(key, new_row, sheet_ndx=0):
+def append_to_spreadsheet(key, new_row, sheet_ndx=0, start_row=1):
     sheet = gc.open_by_key(key).get_worksheet(sheet_ndx)
 
-    for next_row in count(1):
+    for next_row in count(start_row):
         row = sheet.row_values(next_row)
         if all(not v for v in row):
             break
