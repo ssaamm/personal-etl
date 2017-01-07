@@ -1,16 +1,10 @@
-from collections import namedtuple
+from __future__ import print_function
+from utils.common import gc, pairwise
 from datetime import datetime, timedelta
 from itertools import islice
 import sys
+import pandas as pd
 
-from oauth2client.service_account import ServiceAccountCredentials
-import gspread
-
-scope = ['https://spreadsheets.google.com/feeds']
-filename = 'personal-etl-dba50f184134.json'
-credentials = ServiceAccountCredentials.from_json_keyfile_name(filename, scope)
-
-gc = gspread.authorize(credentials)
 key = '1zZfwcBQkpjbGqk3jT67IdnCuVSbr-YTiMQQNRCw0m30'
 sheet = gc.open_by_key(key).worksheets()[1]
 
@@ -22,24 +16,27 @@ EMPTY_ROW = ('', '', '')
 
 SEP = '\t'
 
-def get_raw_rows():
+def get_rows():
     all_cols = [sheet.col_values(ndx) for ndx in (MILEAGE_COL, DATE_COL,
                 TIME_COL)]
 
-    for r in zip(*all_cols):
-        if r == EMPTY_ROW:
+    for mileage, date, time in islice(zip(*all_cols), 1, None):
+        if (mileage, date, time) == EMPTY_ROW:
             return
-        yield r
-
-def get_headers():
-    return 'mileage', 'timestamp'
+        yield parse_timestamp(date, time), int(mileage)
 
 def parse_timestamp(date, time):
     return datetime.strptime('{0} {1}'.format(date, time), '%m/%d/%Y %H:%M')
 
 def get_data():
-    for mileage, date, time in islice(get_raw_rows(), 1, None):
-        yield mileage, parse_timestamp(date, time)
+    rows = list(get_rows())
+    df = pd.DataFrame(data=[t[1] for t in rows], index=[t[0] for t in rows], columns=['mileage'])
+    df = df.groupby(pd.TimeGrouper('1W')).max().interpolate()
+
+    for wk1, wk2 in pairwise(df.iterrows()):
+        week = wk2[0].date().strftime('%Y-%m-%d')
+        miles_driven = wk2[1]['mileage'] - wk1[1]['mileage']
+        yield (week, miles_driven)
 
 if __name__ == '__main__':
     sep = SEP
@@ -49,6 +46,6 @@ if __name__ == '__main__':
     except IndexError:
         pass
 
-    print(sep.join(get_headers()))
-    for data in get_data():
-        print(sep.join(str(i) for i in data))
+    print(sep.join(('week_ending', 'miles_driven')))
+    for week, miles_driven in get_data():
+        print('{}{}{}'.format(week, sep, miles_driven))
