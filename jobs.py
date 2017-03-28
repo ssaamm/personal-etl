@@ -12,7 +12,15 @@ from utils.append_to_spreadsheet import append_to_spreadsheet
 hyperlink = '=HYPERLINK("https://indeed.com{url}", "URL")'
 key = '1_CsvRPqVPLqwDfMUJjHTQarFwp09IfPX7ON9pyFqxB0'
 sheet = gc.open_by_key(key).get_worksheet(0)
-Job = namedtuple('Job', ['title', 'company', 'url'])
+
+
+def str_eq(a, b):
+    return a.lower().strip() == b.lower().strip()
+
+
+class Job(namedtuple('Job', ['title', 'company', 'url'])):
+    def __eq__(self, other):
+        return other.url == self.url or (str_eq(self.title, other.title) and str_eq(self.company, other.company))
 
 
 def get_joblink(jobtitle):
@@ -39,12 +47,14 @@ def existing_jobs():
         yield Job(row[0], row[1], row[2])
 
 if __name__ == '__main__':
-    seen_urls = {j.url for j in existing_jobs()}
+    seen_jobs = list(existing_jobs())
     next_row = 1
     new_jobs = 0
 
     for job in get_jobs('kafka python'):
-        if job.url in seen_urls:
+        existing_match = next((j for j in seen_jobs if j == job), None)
+        if existing_match is not None:
+            print('Seen', job)
             continue
 
         row = (job.title, job.company, hyperlink.format(url=job.url))
