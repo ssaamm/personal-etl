@@ -2,3 +2,4 @@ gspread
 oauth2client
 pyOpenSSL
 pandas==0.19.2
+beautifulsoup4==4.5.3
