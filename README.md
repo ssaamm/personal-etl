@@ -13,4 +13,5 @@ See [Gspread's docs](https://gspread.readthedocs.io/en/latest/oauth2.html)
 
 - [Jenkins](https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins)
 - nginx
-- `sudo yum install gcc python-devel libffi-devel openssl-devel`
+- RHEL-based: `sudo yum install gcc python-devel libffi-devel openssl-devel`
+- Debian-based: `sudo apt-get install python-dev libssl-dev`
