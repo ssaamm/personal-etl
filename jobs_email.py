@@ -49,11 +49,11 @@ def train_model(all_jobs):
 
 
 def fetch_latest_seen_row():
-    return int(meta_sheet.acell('B1').value)
+    return int(meta_sheet.acell('B1').value) - DF_SHEETS_OFFSET
 
 
 def record_latest_seen_row(rownum):
-    meta_sheet.update_acell('B1', rownum)
+    meta_sheet.update_acell('B1', rownum + DF_SHEETS_OFFSET)
 
 
 def format_email(jobs):
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     latest_seen_row = fetch_latest_seen_row()
     unrated_jobs = all_jobs[all_jobs['sounds_cool'].isnull()]
-    unrated_jobs = unrated_jobs.iloc[latest_seen_row - DF_SHEETS_OFFSET:]
+    unrated_jobs = unrated_jobs[unrated_jobs.index > latest_seen_row]
 
     if unrated_jobs.shape[0] == 0:
         print('No new jobs to rate')
@@ -102,4 +102,4 @@ if __name__ == '__main__':
     content = format_email(recommended_jobs)
     send_email(content)
 
-    record_latest_seen_row(unrated_jobs.index[-1] + DF_SHEETS_OFFSET)
+    record_latest_seen_row(unrated_jobs.index[-1])
