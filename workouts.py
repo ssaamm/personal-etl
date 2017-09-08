@@ -3,10 +3,10 @@ import datetime
 import sys
 from itertools import islice, groupby
 
+import pandas as pd
+
 from utils.common import gc
 from utils.duration import Duration
-
-from utils.math_utils import rolling_average
 
 key = '1RzVbHFsIw6K9koiI9oGdWkhQmZrwUikfLIoNhvdlEs8'
 sheet = gc.open_by_key(key).get_worksheet(0)
@@ -49,25 +49,18 @@ def get_daily_did_i_workout():
     chrono_dates = list(sorted(workouts.keys()))
     first_day, last_day = min(chrono_dates), datetime.date.today()
 
-    days = (first_day + datetime.timedelta(days=i) for i in range(1, (last_day - first_day).days + 1))
-    return [(d, d in workouts and any(workouts[d])) for d in days]
-
-def get_workout_rolling_avg(days=7):
-    did_workouts = get_daily_did_i_workout()
-    numbers = [int(b) for d, b in did_workouts]
-    for date_did_workout, avg in zip(did_workouts[days - 1:], rolling_average(numbers, window=days)):
-        yield date_did_workout[0], avg
-
-
-def get_headers():
-    return 'date', 'pct_last_wk_worked_out'
+    days = [first_day + datetime.timedelta(days=i) for i in range(1, (last_day - first_day).days + 1)]
+    return pd.DataFrame(index=days, data=[d in workouts and any(workouts[d]) for d in days], columns=['worked_out_1d'])
 
 def parse_timestamp(date, time):
     return datetime.datetime.strptime('{0} {1}'.format(date, time), '%Y-%m-%d %H:%M')
 
 def get_data():
-    for i in get_workout_rolling_avg():
-        yield i
+    did_workouts = get_daily_did_i_workout()
+    did_workouts['worked_out_7d'] = did_workouts.worked_out_1d.rolling(window=7).mean()
+    did_workouts['worked_out_28d'] = did_workouts.worked_out_1d.rolling(window=28).mean()
+    del did_workouts['worked_out_1d']
+    return did_workouts.reindex(did_workouts.index.rename('date'))
 
 if __name__ == '__main__':
     sep = SEP
@@ -77,6 +70,5 @@ if __name__ == '__main__':
     except IndexError:
         pass
 
-    print(sep.join(get_headers()))
-    for data in get_data():
-        print(sep.join(str(i) for i in data))
+    data = get_data()
+    data.to_csv(sys.stdout, sep=sep)
