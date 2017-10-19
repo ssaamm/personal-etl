@@ -26,8 +26,8 @@ token = os.getenv('TWILIO_TOKEN')
 my_number = os.getenv('MY_NUMBER')
 
 def get_transit_time(from_addr, to_addr, driver):
-      try:
-             element = driver.find_element_by_id('ml-searchboxinput')
+    try:
+        element = driver.find_element_by_id('ml-searchboxinput')
         element.send_keys(HOME, Keys.ENTER)
         time.sleep(1)
 
@@ -40,13 +40,11 @@ def get_transit_time(from_addr, to_addr, driver):
         time.sleep(1)
 
         element = driver.find_element_by_class_name('ml-directions-pane-header-time-content')
-                return element.text
-
-        driver.save_screenshot('screen.png')
-      except Exception as x:
-          print('problem', x)
-      finally:
-          driver.quit()
+        return element.text
+    except Exception as x:
+        print('problem', x)
+    finally:
+        driver.quit()
 
 
 client = Client(twilio_account_sid, token)
@@ -60,11 +58,11 @@ if __name__ == '__main__':
     driver.get(URL)
     driver.implicitly_wait(10)
 
-        transit_time = get_transit_time(HOME, WORK, driver)
+    transit_time = get_transit_time(HOME, WORK, driver)
     print(transit_time)
-        split = transit_time.split()
-        transit_time_mins = int(split[0])
+    split = transit_time.split()
+    transit_time_mins = int(split[0])
 
-        if transit_time_mins >= WARN_MINS or len(split) != 2 or split[1] != 'min':
-            print('Warning', WARN_NUMBER)
-            message(WARN_NUMBER, 'Hey, commute is long ({})'.format(transit_time))
+    if transit_time_mins >= WARN_MINS or len(split) != 2 or split[1] != 'min':
+        print('Warning', WARN_NUMBER)
+        message(WARN_NUMBER, 'Hey, commute is long ({})'.format(transit_time))
