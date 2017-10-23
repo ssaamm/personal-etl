@@ -31,11 +31,12 @@ class Job(namedtuple('Job', ['title', 'company', 'url'])):
 def get_joblink(jobtitle):
     return jobtitle.find('a').get('href')
 
-def get_jobs(term='python'):
-    r = requests.get('https://www.indeed.com/jobs?as_and=&as_phr=&as_any={t}&as_not=&as_ttl=&as_cmp=&jt=fulltime&st=&salary=&radius=25&l=austin%2C+tx&fromage=any&limit=50&sort=date&psf=advsrch'.format(t=term))
+def get_jobs(url):
+    """ url should be an Indeed URL """
+    r = requests.get(url)
     soup = BeautifulSoup(r.text, 'html.parser')
 
-    for posting in soup.find_all(attrs={'itemtype': 'http://schema.org/JobPosting'}):
+    for posting in soup.find_all(attrs={'data-tn-component': 'organicJob'}):
         jobtitle = posting.find(attrs={'class': 'jobtitle'})
         company = posting.find(attrs={'class': 'company'})
 
@@ -102,8 +103,12 @@ if __name__ == '__main__':
     seen_jobs = list(existing_jobs())
     next_row = 1
     new_jobs = 0
+    urls = [
+        'https://www.indeed.com/jobs?as_and=&as_phr=&as_any=python+kafka+%22data+science%22&as_not=&as_ttl=&as_cmp=&jt=all&st=&salary=&radius=25&l=denver%2C+co&fromage=any&limit=10&sort=date&psf=advsrch',
+        'https://www.indeed.com/jobs?as_and=&as_phr=&as_any=python+kafka+%22data+science%22&as_not=&as_ttl=&as_cmp=&jt=all&st=&salary=&radius=25&l=austin%2C+tx&fromage=any&limit=10&sort=date&psf=advsrch',
+    ]
 
-    for job in get_jobs('kafka python'):
+    for job in it.chain.from_iterable(get_jobs(u) for u in urls):
         existing_match = next((j for j in seen_jobs if j == job), None)
         if existing_match is not None:
             print('Seen', job)
