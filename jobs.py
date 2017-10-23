@@ -2,6 +2,9 @@ from __future__ import print_function
 
 from collections import namedtuple
 import itertools as it
+import os
+import multiprocessing
+import logging
 
 import requests
 from bs4 import BeautifulSoup
@@ -11,7 +14,9 @@ from utils.append_to_spreadsheet import append_to_spreadsheet
 
 hyperlink = '=HYPERLINK("https://indeed.com{url}", "URL")'
 key = '1_CsvRPqVPLqwDfMUJjHTQarFwp09IfPX7ON9pyFqxB0'
-sheet = gc.open_by_key(key).get_worksheet(0)
+doc = gc.open_by_key(key)
+sheet = doc.get_worksheet(0)
+para_sheet = doc.get_worksheet(2)
 
 
 def str_eq(a, b):
@@ -39,12 +44,59 @@ def get_jobs(term='python'):
         yield Job(title=jobtitle.get_text().strip(), company=company.get_text().strip(), url=joblink)
 
 def existing_jobs():
-    all_cols = [sheet.col_values(ndx) for ndx in (1, 2, 3)]
+    rows = sheet.get_all_values()
 
-    for row in it.islice(zip(*all_cols), 1, None):
+    for row in it.islice(rows, 1, None):
         if all(not v for v in row):
             raise StopIteration
         yield Job(row[0], row[1], row[2])
+
+def existing_descs():
+    descs = para_sheet.col_values(1)
+    return descs
+
+def download_job(filepath_job):
+    filepath, job = filepath_job
+    try:
+        r = requests.get('https://www.indeed.com' + job.url)
+    except requests.ConnectionError:
+        logging.exception('Problem getting %s', job.title)
+        return
+
+    with open(filepath, 'wb') as f:
+        f.write(r.content)
+
+def download_all_jobs(directory=os.path.expanduser('~/Downloads/job_listings/')):
+    all_jobs = list(existing_jobs())
+    to_dl = [(os.path.join(directory, '{}.html'.format(ndx)), job)for ndx, job in enumerate(all_jobs)]
+
+    p = multiprocessing.Pool(8)
+    p.map(download_job, to_dl)
+    p.close()
+
+def push_to_sheets():
+    BASE = os.path.expanduser('~/Downloads/job_listings')
+    seen_descs = set(existing_descs())
+
+    def get_soup(fpath):
+        with open(fpath, 'r') as f:
+            soup = BeautifulSoup(f.read(), 'html.parser')
+        return soup
+
+    next_row = 1
+
+    for fn in os.listdir(BASE):
+        soup = get_soup(os.path.join(BASE, fn))
+        paras = soup.find_all(['p', 'ul', 'ol'])
+
+        for p in paras:
+            if p.text in seen_descs:
+                logging.info('Skipping "%s"', p.text)
+                continue
+            next_row = append_to_spreadsheet(None, [p.text], 3, next_row, sheet=para_sheet)
+            seen_descs.add(p.text)
+
+TASK = 'push_to_sheets'
 
 if __name__ == '__main__':
     seen_jobs = list(existing_jobs())
@@ -62,3 +114,7 @@ if __name__ == '__main__':
         new_jobs += 1
 
     print('Found', new_jobs, 'new listings')
+elif TASK == 'gather':
+    download_all_jobs()
+elif TASK == 'push_to_sheets':
+    push_to_sheets()
