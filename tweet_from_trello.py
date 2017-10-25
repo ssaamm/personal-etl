@@ -7,8 +7,11 @@ from utils.secrets import TW_CONSUMER_KEY, TW_CONSUMER_SECRET, TW_ACCESS_TOKEN_K
 
 def get_cards(list_id='59e7eade486873e09eb165d9'):
     lists = trello.Lists(TRELLO_APP_KEY, TRELLO_TOKEN)
-    cards = lists.get_card(list_id)
-    return [c['name'] for c in cards]
+    return lists.get_card(list_id)
+
+def archive_card(card):
+    cards = trello.Cards(TRELLO_APP_KEY, TRELLO_TOKEN)
+    cards.update_closed(card['id'], 'true')
 
 if __name__ == '__main__':
     auth = tweepy.OAuthHandler(TW_CONSUMER_KEY, TW_CONSUMER_SECRET)
@@ -16,10 +19,12 @@ if __name__ == '__main__':
     api = tweepy.API(auth)
 
     to_tweet = get_cards()
-    if any(len(t) > 140 for t in to_tweet):
-        print "WARNING: Can't tweet:", t, '(too long)'
+    card = next((c for c in to_tweet if len(c['name']) < 140), None)
+    if card is None:
+        print 'no tweets'
+        exit(1)
+    status = card['name']
 
-    status = next((t for t in to_tweet if len(t) < 140), None)
     print 'Tweeting:', status
-
     api.update_status(status)
+    archive_card(card)
