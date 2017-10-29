@@ -61,7 +61,12 @@ def format_email(jobs):
     job_template = u'{} @ {} - {}'
 
     for _, row in jobs.iterrows():
-        r = requests.get('https://indeed.com' + row['url'])
+        url = 'https://indeed.com' + row['url']
+        try:
+            r = requests.get(url)
+            url = r.url
+        except requests.exceptions.ConnectionError:
+            pass
         email.append(job_template.format(row['title'], row['company'], r.url))
 
     return '\n\n'.join(email)
