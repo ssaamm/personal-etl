@@ -19,7 +19,7 @@ EDMUNDS_COLORS_URL = 'https://api.edmunds.com/api/vehicle/v2/styles/{style_id}/c
 key = '1zZfwcBQkpjbGqk3jT67IdnCuVSbr-YTiMQQNRCw0m30'
 def get_current_car_value(*args, **kwargs):
     value = _get_current_car_value(*args, **kwargs)
-    append_to_spreadsheet(key, [datetime.now(), value], sheet_ndx=3, start_row=3700)
+    append_to_spreadsheet(key, [datetime.now(), value], sheet_ndx=3, start_row=8650)
     return value
 
 def _get_current_car_value(mileage, condition='Clean'):

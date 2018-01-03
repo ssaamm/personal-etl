@@ -84,7 +84,7 @@ def push_to_sheets():
             soup = BeautifulSoup(f.read(), 'html.parser')
         return soup
 
-    next_row = 1
+    next_row = 4760
 
     for fn in os.listdir(BASE):
         soup = get_soup(os.path.join(BASE, fn))
