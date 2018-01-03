@@ -5,9 +5,12 @@ import sys
 import pandas as pd
 import numpy as np
 
+
 key = '1RzVbHFsIw6K9koiI9oGdWkhQmZrwUikfLIoNhvdlEs8'
 sheet = gc.open_by_key(key).get_worksheet(1)
 
+
+CRIT_VAL_90 = 1.645
 SEP = '\t'
 
 def get_raw_rows():
@@ -21,12 +24,15 @@ def get_raw_rows():
 def get_data():
     rows = list(get_raw_rows())
     df = pd.DataFrame(data=[t[1] for t in rows], index=[t[0] for t in rows], columns=['weight'])
-    df = df.groupby(pd.TimeGrouper('1D')).agg([np.max, np.min]).interpolate().rolling(window=7).mean()
+    df = df.groupby(pd.TimeGrouper('1w')).weight.agg([np.mean, np.std, len])
+
+    ci = CRIT_VAL_90 * (df['std'] / np.sqrt(df['len']))
+    df['low'] = df['mean'] + ci
+    df['high'] = df['mean'] - ci
 
     df.dropna(inplace=True)
     df.index.name = 'date'
-    df.columns = ['max_weight', 'min_weight']
-    return df
+    return df[['mean', 'low', 'high']]
 
 def parse_timestamp(date, time):
     return datetime.strptime('{0} {1}'.format(date, time), '%m/%d/%Y %H:%M')
