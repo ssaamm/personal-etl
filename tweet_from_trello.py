@@ -19,7 +19,7 @@ if __name__ == '__main__':
     api = tweepy.API(auth)
 
     to_tweet = get_cards()
-    card = next((c for c in to_tweet if len(c['name']) < 140), None)
+    card = next((c for c in to_tweet if len(c['name']) < 280), None)
     if card is None:
         print 'no tweets'
         exit(1)
