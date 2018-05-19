@@ -1,4 +1,4 @@
-gspread
+gspread==0.6.2
 oauth2client
 pyOpenSSL
 pandas==0.19.2
@@ -6,3 +6,4 @@ beautifulsoup4==4.5.3
 scikit-learn[alldeps]
 trello==0.9.1
 tweepy==3.5.0
+python-dateutil==2.6.0

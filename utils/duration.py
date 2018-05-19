@@ -30,7 +30,7 @@ class Duration(object):
         return self.hours == other.hours and self.minutes == other.minutes and self.seconds == other.seconds
 
     def __repr__(self):
-        return '{h}:{m}:{s}'.format(h=self.hours, m=self.minutes, s=self.seconds)
+        return '{h}:{m:0>2}:{s:0>2}'.format(h=self.hours, m=self.minutes, s=self.seconds)
 
     @staticmethod
     def from_string(duration_str):

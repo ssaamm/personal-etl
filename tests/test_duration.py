@@ -14,3 +14,11 @@ from utils.duration import Duration
 def test_addition(a, b, expected):
     result = a + b
     assert result == expected
+
+
+@pytest.mark.parametrize('d,r', [
+    [Duration(0, 0, 410), '0:06:50'],
+    [Duration(1, 1, 1), '1:01:01'],
+])
+def test_repr(d, r):
+    assert repr(d) == r
