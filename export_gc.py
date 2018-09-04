@@ -70,22 +70,16 @@ class GarminConnectClient(object):
         ticket = match.group(1)
         logging.debug('Login ticket: %s', ticket)
 
-        self._session.get('https://connect.garmin.com/modern/activities', params={'ticket': ticket})
+        r = self._session.get('https://connect.garmin.com/modern/activities', params={'ticket': ticket})
         if r.status_code != 200:
             raise RuntimeError('Trouble logging in')
 
     def fetch_activities(self, start=0, limit=1):
-        r = self._session.get('https://connect.garmin.com/proxy/activity-search-service-1.2/json/activities', params={'start': start, 'limit': limit})
+        url = 'https://connect.garmin.com/modern/proxy/activitylist-service/activities/search/activities'
+        r = self._session.get(url, params={'start': start, 'limit': limit})
         if r.status_code != 200:
             raise RuntimeError(r.text)
         return r.json()
-
-    def fetch_activity_summary(self, activity_id):
-        r = self._session.get('https://connect.garmin.com/modern/proxy/activity-service/activity/{}'.format(activity_id))
-        if r.status_code != 200:
-            raise RuntimeError(r.text)
-        return r.json()
-
 
 def get_recorded_activities():
     activity_col = sheet.col_values(11)
@@ -113,15 +107,10 @@ if __name__ == '__main__':
 
     existing_ids = get_recorded_activities()
 
-    for a in (a for a in reversed(activities['results']['activities'])
-              if a['activity']['activityId'] not in existing_ids):
-
-        activity = client.fetch_activity_summary(a['activity']['activityId'])
-
-        exercise_name = a['activity']['activityType']['display']
-        dur_sec = activity['summaryDTO']['duration']
-        distance_km = activity['summaryDTO']['distance'] / 1000
-        date_str = activity['summaryDTO']['startTimeLocal']
+    for activity in (a for a in reversed(activities) if a['activityId'] not in existing_ids):
+        exercise_name = activity['activityType']['typeKey']
+        dur_sec = activity['duration']
+        distance_km = activity['distance'] / 1000
+        date_str = activity['startTimeLocal']
         add_to_sheet(parse(date_str), exercise_name, distance_km,
-                     Duration(hours=0, minutes=0, seconds=int(round(dur_sec))),
-                     a['activity']['activityId'])
+                     Duration(hours=0, minutes=0, seconds=int(round(dur_sec))), activity['activityId'])
