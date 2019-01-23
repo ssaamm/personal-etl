@@ -25,6 +25,5 @@ if __name__ == '__main__':
         exit(1)
     status = card['name']
 
-    print 'Tweeting:', status
     api.update_status(status)
     archive_card(card)
