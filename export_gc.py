@@ -17,7 +17,7 @@ REDIRECT = "https://connect.garmin.com/post-auth/login"
 BASE_URL = "http://connect.garmin.com/en-US/signin"
 SSO = "https://sso.garmin.com/sso"
 CSS = "https://static.garmincdn.com/com.garmin.connect/ui/css/gauth-custom-v1.2-min.css"
-LOGIN_URL = 'https://sso.garmin.com/sso/login'
+LOGIN_URL = 'https://sso.garmin.com/sso/signin'
 
 
 class GarminConnectClient(object):
@@ -60,7 +60,8 @@ class GarminConnectClient(object):
             '_eventId': 'submit',
             'displayNameRequired': 'false'
         }
-        r = self._session.post(LOGIN_URL, params=login_params, data=login_data)
+        headers = {'origin': 'https://sso.garmin.com'}
+        r = self._session.post(LOGIN_URL, headers=headers, params=login_params, data=login_data)
         if r.status_code != 200:
             raise RuntimeError('Trouble logging in')
 
