@@ -4,6 +4,6 @@ pyOpenSSL
 pandas==0.19.2
 beautifulsoup4==4.5.3
 scikit-learn[alldeps]
-trello==0.9.1
+trello==0.9.4
 tweepy==3.5.0
 python-dateutil==2.6.0

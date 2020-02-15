@@ -21,7 +21,7 @@ if __name__ == '__main__':
     to_tweet = get_cards()
     card = next((c for c in to_tweet if len(c['name']) < 280), None)
     if card is None:
-        print 'no tweets'
+        print('no tweets')
         exit(1)
     status = card['name']
 

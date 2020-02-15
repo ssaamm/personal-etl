@@ -1,5 +1,11 @@
-env/
+*.swp
+.idea/
+.cache/
+
+env*/
 
 __pycache__/
+*.pyc
 
 personal-etl-*.json
+secrets.py
