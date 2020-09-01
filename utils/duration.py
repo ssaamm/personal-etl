@@ -8,12 +8,12 @@ class Duration(object):
         self.seconds = seconds
 
         if self.seconds >= Duration.SECONDS_PER_MINUTE:
-            num_minutes = self.seconds / Duration.SECONDS_PER_MINUTE
+            num_minutes = self.seconds // Duration.SECONDS_PER_MINUTE
             self.minutes += num_minutes
             self.seconds -= num_minutes * Duration.SECONDS_PER_MINUTE
 
         if self.minutes >= Duration.MINUTES_PER_HOUR:
-            num_hours = self.minutes / Duration.MINUTES_PER_HOUR
+            num_hours = self.minutes // Duration.MINUTES_PER_HOUR
             self.hours += num_hours
             self.minutes -= num_hours * Duration.MINUTES_PER_HOUR
 
