@@ -17,7 +17,12 @@ REDIRECT = "https://connect.garmin.com/post-auth/login"
 BASE_URL = "http://connect.garmin.com/en-US/signin"
 SSO = "https://sso.garmin.com/sso"
 CSS = "https://static.garmincdn.com/com.garmin.connect/ui/css/gauth-custom-v1.2-min.css"
-LOGIN_URL = 'https://sso.garmin.com/sso/signin'
+SIGNIN_URL = 'https://sso.garmin.com/sso/signin'
+LOGIN_URL = 'https://sso.garmin.com/sso/login'
+AUTH_PARAMS = {
+    "service": "https://connect.garmin.com/modern/",
+    "gauthHost": "https://sso.garmin.com/sso",
+}
 
 
 class GarminConnectClient(object):
@@ -47,21 +52,19 @@ class GarminConnectClient(object):
             'embedWidget': 'false',
             'generateExtraServiceTicket': 'false'
         }
-        r = self._session.get(LOGIN_URL, params=login_params)
+        r = self._session.get(SIGNIN_URL, params=login_params)
         if r.status_code != 200:
             raise RuntimeError('Trouble logging in')
         logging.debug('%s %s', r.status_code, r.url)
 
-        login_data = {
+        form_data = {
             'username': username,
             'password': password,
-            'embed': 'true',
-            'lt': 'e1s1',
-            '_eventId': 'submit',
-            'displayNameRequired': 'false'
+            'embed': 'false',
+            '_csrf': self._get_csrf()
         }
         headers = {'origin': 'https://sso.garmin.com'}
-        r = self._session.post(LOGIN_URL, headers=headers, params=login_params, data=login_data)
+        r = self._session.post(SIGNIN_URL, headers=headers, params=AUTH_PARAMS, data=form_data)
         if r.status_code != 200:
             raise RuntimeError('Trouble logging in')
 
@@ -75,8 +78,20 @@ class GarminConnectClient(object):
         if r.status_code != 200:
             raise RuntimeError('Trouble logging in')
 
+    def _get_csrf(self):
+        logging.info('Getting CSRF token')
+        resp = self._session.get(LOGIN_URL, params=AUTH_PARAMS)
+        if resp.status_code != 200:
+            raise ValueError("auth failure: could not load {}".format(LOGIN_URL))
+        # extract CSRF token
+        csrf_token = re.search(r'<input type="hidden" name="_csrf" value="(\w+)"',
+                               resp.content.decode('utf-8'))
+        if not csrf_token:
+            raise ValueError("auth failure: no CSRF token in {}".format(LOGIN_URL))
+        return csrf_token.group(1)
+
     def fetch_activities(self, start=0, limit=1):
-        url = 'https://connect.garmin.com/modern/proxy/activitylist-service/activities/search/activities'
+        url = 'https://connect.garmin.com/proxy/activitylist-service/activities/search/activities'
         r = self._session.get(url, params={'start': start, 'limit': limit})
         if r.status_code != 200:
             raise RuntimeError(r.text)
