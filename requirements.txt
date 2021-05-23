@@ -6,5 +6,5 @@ beautifulsoup4==4.5.3
 scikit-learn[alldeps]
 trello==0.9.4
 tweepy==3.9.0
-python-dateutil==2.6.0
+python-dateutil
 cloudscraper==1.2.58
