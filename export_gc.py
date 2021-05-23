@@ -3,7 +3,7 @@ from utils.common import gc
 from utils.duration import Duration
 
 import logging
-import requests
+import cloudscraper
 import re
 from dateutil.parser import parse
 
@@ -27,7 +27,7 @@ AUTH_PARAMS = {
 
 class GarminConnectClient(object):
     def __init__(self):
-        self._session = requests.Session()
+        self._session = cloudscraper.create_scraper()
 
     def auth(self, username, password):
         login_params = {
@@ -54,6 +54,7 @@ class GarminConnectClient(object):
         }
         r = self._session.get(SIGNIN_URL, params=login_params)
         if r.status_code != 200:
+            logging.error(r.text)
             raise RuntimeError('Trouble logging in')
         logging.debug('%s %s', r.status_code, r.url)
 
@@ -66,6 +67,7 @@ class GarminConnectClient(object):
         headers = {'origin': 'https://sso.garmin.com'}
         r = self._session.post(SIGNIN_URL, headers=headers, params=AUTH_PARAMS, data=form_data)
         if r.status_code != 200:
+            logging.error(r.text)
             raise RuntimeError('Trouble logging in')
 
         match = re.match(r'.*\?ticket=([-\w]+)\";.*', r.text, flags=re.MULTILINE | re.DOTALL)
@@ -76,6 +78,7 @@ class GarminConnectClient(object):
 
         r = self._session.get('https://connect.garmin.com/modern/activities', params={'ticket': ticket})
         if r.status_code != 200:
+            logging.error(r.text)
             raise RuntimeError('Trouble logging in')
 
     def _get_csrf(self):
@@ -119,7 +122,7 @@ def add_to_sheet(date, name, distance_km, duration, activity_id):
 if __name__ == '__main__':
     client = GarminConnectClient()
     client.auth(GARMIN_USER, GARMIN_PASS)
-    activities = client.fetch_activities(0, 15)
+    activities = client.fetch_activities(0, 30)
 
     existing_ids = get_recorded_activities()
 
